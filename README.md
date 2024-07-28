@@ -36,9 +36,12 @@ Hecho lo anterior para poder asegurarse de que el ESP-32 esté conectado a nuest
 cd /dev
 ls 
 ```
+
 Una vez inicializados los comandos deberiamos ver algo como la imagen de abajo, si aparece el dispositivo ttyUSB0 significa que la conexión entre el ESP32 y ubuntu se realizó de la manera correcta: 
 
 ![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/comprobar_puerto.jpeg)
+
+Si no te aparece el puerto ttyUSB0 prueba desconectando el cable del ESP-32 y volviendolo a conectar las veces que sean necesarios revisando constantemente con ls para verificar que se conecte el puerto, si estas haciendo esto por primera vez puede que sea necesario que tengas que reiniciar el computador para que empiece a funcionar todo como debería. 
 
 ## 2.- Crear e iniciar agente 
 Para poder inicializar el programa cargado en nuestro ESP-32 tenemos que crear un agente en el sistema lo que hará que los valores sensorizados y compartidos por el micro-controlador lleguen al ubuntu, para lograr esto se tienen que ejecutar los siguientes comandos: 

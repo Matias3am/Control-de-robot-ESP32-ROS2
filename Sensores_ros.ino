@@ -6,7 +6,6 @@
 #include <rclc/rclc.h>         // Biblioteca para la inicialización de ROS 2 en C
 #include <rclc/executor.h>     // Biblioteca para la ejecución de nodos en ROS 2
 #include <std_msgs/msg/float32.h> // Biblioteca para mensajes estándar de tipo float32
-#include <sensor_msgs/msg/imu.h>  // Biblioteca para mensajes de IMU (unidad de medición inercial)
 #include <sensor_msgs/msg/range.h>// Biblioteca para mensajes de rango de sensor
 #include <rosidl_runtime_c/string.h> // Biblioteca para manejo de cadenas en ROS 2
 #include "std_msgs/msg/detail/header__struct.h"

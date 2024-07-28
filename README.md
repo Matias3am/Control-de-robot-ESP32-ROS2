@@ -166,7 +166,7 @@ Si estamos utilizando maquinas virtuales para trabajar, por ejemplo VirtualBox (
 ![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/Configuraci%C3%B3n_COM.png)
 
 Hecho lo anterior para poder asegurarse de que el ESP-32 esté conectado a nuestro ambiente de UBUNTU, una vez inicializado el sistema operativo tenemos que dirigirnos hacia el directorio /dev ya que aquí se encuentran todos los dispositivos hardware y puertos del sistema
-```
+``` console
 cd /dev
 ls 
 ```
@@ -179,28 +179,47 @@ Si no te aparece el puerto ttyUSB0 prueba desconectando el cable del ESP-32 y vo
 
 ## 2.- Crear e iniciar agente 
 Para poder inicializar el programa cargado en nuestro ESP-32 tenemos que crear un agente en el sistema lo que hará que los valores sensorizados y compartidos por el micro-controlador lleguen al ubuntu, para lograr esto se tienen que ejecutar los siguientes comandos: 
-```
-sudo apt install python3-rosdep  // Instalación de dependencias
-source /opt/ros/$ROS_DISTRO/setup.bash // Iniciar el entorno de ros en la terminal
-mkdir uros_ws && cd uros_ws // Creamos y entramos a un direcctorio para actuar como agente (Este se puede llamar como tú quieras)
-git clone -b $ROS_DISTRO https://github.com/micro-ROS/micro_ros_setup.git src/micro_ros_setup // instalamos un repositorio que es necesario para la ejecución
+``` console
+# Instalación de dependencias
+sudo apt install python3-rosdep
+# Iniciar el entorno de ROS en la terminal
+source /opt/ros/$ROS_DISTRO/setup.bash
+# Crear y entrar a un directorio para actuar como agente (este se puede llamar como tú quieras)
+mkdir uros_ws && cd uros_ws
+# Instalamos un repositorio que es necesario para la ejecución
+git clone -b $ROS_DISTRO https://github.com/micro-ROS/micro_ros_setup.git src/micro_ros_setup 
 ```
 $ROS_DISTRO sería basicamente la distribución que estamos utilizando, en este caso yo usé ROS2 : Iron asi que habria que escribir iron solamente ahí 
-```
-rosdep init / sudo rosdep init // incializamos las dependencias 
-rosdep update && rosdep install --from-paths src --ignore-src -y // actualizamos e instalamos archivos descargados
-colcon build // Inicializamos el ambiente  
-source install/local_setup.bash // Importamos ros al ambiente de trabajo 
-ros2 run micro_ros_setup // Iniciamos el setup
-create_agent_ws.sh // Creamos el agente 
-ros2 run micro_ros_setup build_agent.sh // Ejecutamos el setup para el agente  
-source install/local_setup.sh // Importamos ros al ambiente del agente 
-ros2 run micro_ros_agent micro_ros_agent // Iniciamos el agente 
+``` console
+# Incializamos las dependencias 
+rosdep init / sudo rosdep init
+# Actualizamos la base de datos de dependencias y luego instalamos
+# todas las dependencias necesarias desde el directorio 'src'.
+rosdep update && rosdep install --from-paths src --ignore-src -y
+# Compilamos el espacio de trabajo utilizando 'colcon build',
+colcon build 
+# Configuramos el entorno de trabajo, asegurándonos de que los paquetes
+# recién construidos estén disponibles para su uso.
+source install/local_setup.bash
+# Iniciamos el proceso de configuración de micro-ROS.
+ros2 run micro_ros_setup
+# Creamos el espacio de trabajo del agente utilizando un script de configuración.
+create_agent_ws.sh 
+# Construimos el agente con el script proporcionado, asegurando que
+# todas las configuraciones necesarias estén en su lugar
+ros2 run micro_ros_setup build_agent.sh 
+# Volvemos a configurar el entorno para incluir las configuraciones del agente.
+source install/local_setup.sh 
+# Finalmente, iniciamos el agente de micro-ROS, que actuará como el
+# intermediario entre el microcontrolador y el sistema principal.
+ros2 run micro_ros_agent micro_ros_agent 
 ```
 Aquí hay que hacer un break, ya que generalmente el puerto no tendrá los permisos de ejecución necesarios, para esto hay que ejecutar el siguiente comando para darle acceso al sistema: 
-```
+``` console
+# Cambiamos los permisos del dispositivo para permitir el acceso completo.
 sudo chmod -R 777 /dev/ttyUSB0
-serial --dev /dev/ttyUSB0 // Inicializamos la conexión al puerto del ESP-32
+# Iniciamos la conexión al puerto del ESP-32 'ttyUSB0'
+serial --dev /dev/ttyUSB0 
 ```
 Si todo resultó de manera correcta debería verse como la siguiente imagen:
 
@@ -208,7 +227,7 @@ Si todo resultó de manera correcta debería verse como la siguiente imagen:
 
 En este punto podemos corroborar si se ejecutó bien el programa del ESP-32, entonces en una terminal aparte tenemos que ejecutar el siguiente comando:
 
-```
+``` console
 ros2 topic list 
 ```
 

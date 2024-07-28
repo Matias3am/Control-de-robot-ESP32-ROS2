@@ -25,8 +25,13 @@ Profesor: Sebastián Guajardo
   * **robot_sensores.urdf:** Este archivo corresponde al modelo del robot junto al cuadrado que representará el sensor de ultra-sonido 
 
 # Ejecución del programa 
-## Comprobar puerto 
-Para poder asegurarse de que el ESP-32 esté conectado a nuestro ambiente de UBUNTU, primero tenemos que dirigirnos hacia el directorio /dev ya que aquí se encuentran todos los dispositivos hardware y puertos del sistema
+## 1.- Comprobar puerto 
+
+Si estamos utilizando maquinas virtuales para trabajar, por ejemplo VirtualBox (Mi caso) , tenemos que habilitar la lectura de puertos y para esto nos vamos a la seccion de configuración de la máquina como en la imagen de abajo y a la derecha de la ventana emerguente apareceran unos cables con simbolos encima, hay que presionar el que tenga el simbolo + de color verde y agregar el driver correspondiente al manejo de los puertos, en mi caso agregué el que aparece ahí, con esto listo debería reconocer el Ubuntu o sistema operativo que estes utilizando los puertos COM:
+
+![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/Configuraci%C3%B3n_COM.png)
+
+Hecho lo anterior para poder asegurarse de que el ESP-32 esté conectado a nuestro ambiente de UBUNTU, primero tenemos que dirigirnos hacia el directorio /dev ya que aquí se encuentran todos los dispositivos hardware y puertos del sistema
 ```
 cd /dev
 ls 
@@ -35,7 +40,7 @@ Una vez inicializados los comandos deberiamos ver algo como la imagen de abajo, 
 
 ![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/comprobar_puerto.jpeg)
 
-## Iniciar agente 
+## 2.- Crear e iniciar agente 
 Para poder inicializar el programa cargado en nuestro ESP-32 tenemos que crear un agente en el sistema lo que hará que los valores sensorizados y compartidos por el micro-controlador lleguen al ubuntu, para lograr esto se tienen que ejecutar los siguientes comandos: 
 ```
 sudo apt install python3-rosdep  // Instalación de dependencias
@@ -76,9 +81,10 @@ Si no aparece el tópico del mensaje tenemos que hacer un reset al ESP-32, enton
 
 En el mensaje que aparece en el terminal podemos ver que  se creó el cliente junto al tópico, por lo que los datos deberían estar llegando al sistema operativo.
 
-## Iniciar entorno de visualización 
+## 3.- Iniciar entorno de visualización 
 
 Con nuestro agente recibiendo información del ESP-32, solamente queda ejecutar el launcher de rviz como en la siguiente imagen:
+
 ![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/launcher_comando.jpeg)
 
 Resultando en lo siguiente: 

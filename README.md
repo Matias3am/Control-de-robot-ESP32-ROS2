@@ -1,11 +1,5 @@
 # VISUALIZACIÓN DE DATOS SENSORIALES DESDE ESP32 A RVIZ/ROS2 
-```
-Asignatura: Programación de robots con ROS
 
-Integrantes: Matias Gonzalez Belmar, Pedro Díaz Herrera, Matias Marin Morales
-
-Profesor: Sebastián Guajardo
-```
 ![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/modelo.jpeg)
 
 ## _**REQUISITOS MÍNIMOS GENERALES**_ 

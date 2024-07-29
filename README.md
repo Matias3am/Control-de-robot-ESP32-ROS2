@@ -230,18 +230,112 @@ En este punto podemos corroborar si se ejecutó bien el programa del ESP-32, ent
 ros2 topic list 
 ```
 
-Si no aparece el tópico del mensaje tenemos que hacer un reset al ESP-32, entonces en la terminal en donde ejecutamos el puerto serial deberia verse así: 
+Se debería desplegar un mensaje parecido al siguiente: 
+
+![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/topic1.png)
+
+Recordemos que nuestro topico en el código lo definimos como:
+
+``` python
+Tópico   = " distancia_ultrasonica "
+```
+
+Claramente no aparece, en este caso lo que debemos de hacer es un reset al ESP-32, entonces en la terminal en donde ejecutamos el puerto serial deberia verse así: 
 
 ![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/iniciar_agente2.jpeg)
 
 En el mensaje que aparece en el terminal podemos ver que  se creó el cliente junto al tópico, por lo que los datos deberían estar llegando al sistema operativo.
 
+Volvemos a la terminal de tópicos para ingresar el comando ls nuevamente:
+
+![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/topic_list.jpeg)
+
+Aquí ya aparece nuestro tópico, para comprobar que le estén llegando los valores de los sensores tenemos que ingresar el siguiente comando en la terminal 
+
+``` console
+ros2 topic echo /{nombre de nuestro tópico}
+# En mi caso sería : distancia_ultrasonica
+```
+
+Ingresando este comando la terminal debería entregar esto: 
+
+![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/valores_sensores.jpeg)
+
+Si se visualiza el mensaje igual que la imagen anterior significa que se estan recepcionando de manera correcta la información desde el ESP-32
+
 ## 3.- Iniciar entorno de visualización 
 
-Con nuestro agente recibiendo información del ESP-32, solamente queda ejecutar el launcher de rviz como en la siguiente imagen:
+Para poder visualizar los datos de mi sensor, necesitamos tener un archivo URDF a quien asociarle el sensor, en mi caso yo hice un robot diferencial de 2 ruedas, junto con una caja al frente de este: 
 
-![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/launcher_comando.jpeg)
+![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/robot.jpeg)
+
+En el código del ESP-32 definimos un frameid:
+
+``` python
+Frame_id = " sensor_link "
+```
+
+Este nombre es importante ya que en el caso del sensor ultrasónico tenemos que vincular en algún cuerpo del robot el sensor, en mi caso vincule el sensor ultra sónico a la cajita que se puede ver al frente del robot de la siguiente manera:
+
+```urdf
+    <link name="sensor_link">
+        <visual>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="0.04 0.04 0.04"/>
+            </geometry>
+            <material name="sensor_link_color">
+                <color rgba="0.5 0.6 0.0 1.0"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="0.04 0.04 0.04"/>
+            </geometry>
+        </collision>
+    </link>
+```
+
+Con el sensor vinculado al robot, podemos ejecutar el siguiente comando para abrir el rviz2 con el modelo de nuestro robot: 
+
+```terminal
+ros2 launch urdf_tutorial display.launch.py model:=$HOME/{dirección hacia nuestro robot urdf}
+```
+
+Lo que se debería ver seria nuestro robot sin más, para poder visualizar el sensor ultra sónico en el rviz lo que tenemos que hacer es presionar el boton add en la esquina inferior izquierda y agregar la opción de range:
+
+![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/config_rviz.jpeg)
+
+Hecho esto agregamos el nombre del "Tópico" , no del frameid 
+
+![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/rviz_range.jpeg)
 
 Resultando en lo siguiente: 
 
 ![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/ambiente.jpeg)
+
+
+# Ejecución con launcher 
+Hechos todos los pasos anteriores, lo que hice yo fue crear un "package" en donde configuré un launcher para ejecutar la visualización con las configuraciones ya hechas de rviz y el robot, en vez de utilizar el comando  
+
+```
+ros2 launch urdf_tutorial display.launch.py model:=$HOME/{dirección hacia nuestro robot urdf}
+```
+
+Solamente nos vamos a la carpeta de sensores que sería la principal, realizamos:
+
+```
+colcon build
+# Luego
+source install/setup.bash
+```
+
+Para ingresar el comando de la imagen de abajo:
+
+![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/launcher_comando.jpeg)
+
+Debería visualizarse el mismo ambiente anterior: 
+
+![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/ambiente.jpeg)
+

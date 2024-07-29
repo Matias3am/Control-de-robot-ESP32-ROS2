@@ -203,20 +203,27 @@ create_agent_ws.sh
 ros2 run micro_ros_setup build_agent.sh 
 # Volvemos a configurar el entorno para incluir las configuraciones del agente.
 source install/local_setup.sh 
-# Finalmente, iniciamos el agente de micro-ROS, que actuará como el
-# intermediario entre el microcontrolador y el sistema principal.
-ros2 run micro_ros_agent micro_ros_agent 
 ```
 Aquí hay que hacer un break, ya que generalmente el puerto no tendrá los permisos de ejecución necesarios, para esto hay que ejecutar el siguiente comando para darle acceso al sistema: 
 ``` console
 # Cambiamos los permisos del dispositivo para permitir el acceso completo.
 sudo chmod -R 777 /dev/ttyUSB0
-# Iniciamos la conexión al puerto del ESP-32 'ttyUSB0'
-serial --dev /dev/ttyUSB0 
+# Finalmente, iniciamos el agente de micro-ROS, que actuará como el
+# intermediario entre el microcontrolador y el sistema principal.
+ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyUSB0 
 ```
 Si todo resultó de manera correcta debería verse como la siguiente imagen:
 
 ![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/iniciar_agente1.jpeg)
+
+### Cabe destacar que una vez que creamos un agente no es necesario tener que compilar todo de nuevo, cada vez que queramos conectarnos al agente solamente necesitamos ejecutar estas lineas:
+
+```
+cd (carpeta del agente)
+source install/local_setup.sh
+sudo chmod -R 777 /dev/ttyUSB0
+ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyUSB0
+```
 
 En este punto podemos corroborar si se ejecutó bien el programa del ESP-32, entonces en una terminal aparte tenemos que ejecutar el siguiente comando:
 

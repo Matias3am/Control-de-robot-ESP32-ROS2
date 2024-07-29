@@ -32,7 +32,7 @@
 #include <std_msgs/msg/float32.h> // Biblioteca para mensajes estándar de tipo float32
 #include <sensor_msgs/msg/range.h>// Biblioteca para mensajes de rango de sensor
 #include <rosidl_runtime_c/string.h> // Biblioteca para manejo de cadenas en ROS 2
-#include "std_msgs/msg/detail/header__struct.h"
+#include "std_msgs/msg/detail/header__struct.h" // Importamos la estructura para el header del mensaje
 
 // Pines utilizados para el sensor ultrasónico
 const int pinTrig = 5; // Pin de disparo del sensor ultrasónico

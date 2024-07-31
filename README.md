@@ -195,9 +195,7 @@ colcon build
 # recién construidos estén disponibles para su uso.
 source install/local_setup.bash
 # Iniciamos el proceso de configuración de micro-ROS.
-ros2 run micro_ros_setup
-# Creamos el espacio de trabajo del agente utilizando un script de configuración.
-create_agent_ws.sh 
+ros2 run micro_ros_setup create_agent_ws.sh 
 # Construimos el agente con el script proporcionado, asegurando que
 # todas las configuraciones necesarias estén en su lugar
 ros2 run micro_ros_setup build_agent.sh 

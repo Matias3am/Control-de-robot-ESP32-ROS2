@@ -603,7 +603,7 @@ void subscription_callback(const void * msgin) {
   
 
 # 3.b- Conexionado electrico de los componentes
-![]([https://github.com/Matias3am/sensor_visualization-ROS-ESP32/blob/main/imagenes/conexionado_electrico.png](https://github.com/Matias3am/sensor_visualization-ROS-ESP32/blob/main/conexionado_electrico.png))
+![](https://github.com/Matias3am/sensor_visualization-ROS-ESP32/blob/main/conexionado_electrico.png)
 
 # 3.c- Puesta en marcha
 ![](https://github.com/Matias3am/sensor_visualization-ROS-ESP32/blob/main/imagenes/robotcin.jpg)

@@ -1,4 +1,4 @@
-# VISUALIZACIÓN DE DATOS SENSORIALES DESDE ESP32 A RVIZ/ROS2 
+# PROGRAMACIÓN Y ENSAMBLE DE ROBOT DIFERENCIAL + VISUALIZACIÓN DE SENSOR:  ESP32 A RVIZ/ROS2 
 
 ![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/modelo.jpeg)
 

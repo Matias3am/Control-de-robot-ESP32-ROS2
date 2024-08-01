@@ -1,7 +1,14 @@
 # PROGRAMACIÓN Y ENSAMBLE DE ROBOT DIFERENCIAL + VISUALIZACIÓN DE SENSOR:  ESP32 A RVIZ/ROS2 
 
 ```
+# PROYECTO FINAL: PROGRAMACIÓN DE ROBOTS CON ROS
+Integrantes:
+* Pedro Díaz Herrera
+* Matias Gonzalez Belmar
+* Matias Marin Morales
 
+Profesor:
+* Sebastián Guajardo
 ```
 
 ![](https://github.com/Matias3am/sensor_visualization-ROS-ESP32/blob/main/imagenes/rebotete_bot.jpg)
@@ -11,7 +18,7 @@
 * ROS2 / IRON
 * RVIZ
 * Esp32
-* Sensor HC-04
+* Sensor HC-SR04
 * Libreria de micro-ros
 
 

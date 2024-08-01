@@ -271,7 +271,7 @@ Si todo resultó de manera correcta debería verse como la siguiente imagen:
 
 ### Cabe destacar que una vez que creamos un agente no es necesario tener que compilar todo de nuevo, cada vez que queramos conectarnos al agente solamente necesitamos ejecutar estas lineas:
 
-```
+``` console 
 cd (carpeta del agente)
 source install/local_setup.sh
 sudo chmod -R 777 /dev/ttyUSB0
@@ -544,7 +544,7 @@ if __name__ == '_main_':
 
 Recordemos que nuestro ESP-32 al ejecutar el agente creará 2 topicos: 
 
-```
+``` python
 Tópico_Publisher   = " distancia_ultrasonica "
 Tópico_Subscriber = " diferencial_control_remoto "
 ```

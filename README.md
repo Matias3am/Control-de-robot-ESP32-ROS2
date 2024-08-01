@@ -217,7 +217,7 @@ Tópico_Publisher   = " distancia_ultrasonica "
 Tópico_Subscriber = " diferencial_control_remoto "
 ```
 
-# Ejecución del programa (ETAPA 1)
+# Ejecución Rviz (ETAPA 1)
 ## 1.a- Comprobar puerto 
 
 Si estamos utilizando maquinas virtuales para trabajar, por ejemplo VirtualBox (Mi caso) , tenemos que habilitar la lectura de puertos y para esto nos vamos a la seccion de configuración de la máquina como en la imagen de abajo y a la derecha de la ventana emerguente apareceran unos cables con simbolos encima, hay que presionar el que tenga el simbolo + de color verde y agregar el driver correspondiente al manejo de los puertos, en mi caso agregué el que aparece ahí, con esto listo debería reconocer el Ubuntu o sistema operativo que estes utilizando los puertos COM:

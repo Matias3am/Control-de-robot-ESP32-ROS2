@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'my_node = subscriptor_py.publicador:main'
+            'control = subscriptor_py.publicador:main'
         ],
     },
 )

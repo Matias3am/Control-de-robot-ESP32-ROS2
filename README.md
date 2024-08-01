@@ -302,7 +302,7 @@ En el mensaje que aparece en el terminal podemos ver que  se creó el cliente ju
 
 Volvemos a la terminal de tópicos para ingresar el comando ls nuevamente:
 
-![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/topic_list.jpeg)
+![](https://github.com/Matias3am/sensor_visualization-ROS-ESP32/blob/main/imagenes/topicos_s_p.png)
 
 Aquí ya aparece nuestro tópico, para comprobar que le estén llegando los valores de los sensores tenemos que ingresar el siguiente comando en la terminal 
 
@@ -393,7 +393,7 @@ Debería visualizarse el mismo ambiente anterior:
 
 ![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/ambiente.jpeg)
 
-# Control del robot (Python) (ETAPA 2)
+# Control del movimiento del robot (Python) (ETAPA 2)
 # 2.a- Conexión Publisher -> Subscriber -> Robot
 
 Para poder controlar el robot mediante la terminal se creó un launchfile de Python el cual será el encargado de leer valores enteros en la terminal y enviar estos valores al tópico subscriber del ESP-32, para esto es necesario crear una carpeta aparte en donde tendremos nuestro programa de Ros Python. 
@@ -590,5 +590,20 @@ void subscription_callback(const void * msgin) {
     analogWrite(b1b, 0);
   }
 }
-
 ```
+
+# Integración de todo (ETAPA 3)
+# 3.a- Definición de componentes 
+- ESP32 (Modelo: Wroom 32e )
+- Sensor ultra-sónico Hc-04
+- Motores Dc N20 (5v)
+- Modelo 3D robot 
+- Protoboard (Ensayo)
+- Conversor corriente electrica -> 5V
+  
+
+# 3.b- Conexionado electrico de los componentes
+![](https://github.com/Matias3am/sensor_visualization-ROS-ESP32/blob/main/imagenes/conexionado_electrico.png)
+
+# 3.c- Puesta en marcha
+![](https://github.com/Matias3am/sensor_visualization-ROS-ESP32/blob/main/imagenes/robotcin.jpg)

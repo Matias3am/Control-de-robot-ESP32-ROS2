@@ -373,13 +373,13 @@ Resultando en lo siguiente:
 # Ejecución con launcher 
 Hechos todos los pasos anteriores, lo que hice yo fue crear un "package" en donde configuré un launcher para ejecutar la visualización con las configuraciones ya hechas de rviz y el robot, en vez de utilizar el comando  
 
-``` terminal
+``` console
 ros2 launch urdf_tutorial display.launch.py model:=$HOME/{dirección hacia nuestro robot urdf}
 ```
 
 Solamente nos vamos a la carpeta de sensores que sería la principal, realizamos:
 
-``` terminal
+``` console
 colcon build
 # Luego
 source install/setup.bash
@@ -398,7 +398,7 @@ Debería visualizarse el mismo ambiente anterior:
 
 Para poder controlar el robot mediante la terminal se creó un launchfile de Python el cual será el encargado de leer valores enteros en la terminal y enviar estos valores al tópico subscriber del ESP-32, para esto es necesario crear una carpeta aparte en donde tendremos nuestro programa de Ros Python. 
 
-``` terminal
+``` console
 # Comando para crear un paquete Python
 ros2 pkg create --build-type ament_python {Nombre del ambiente de trabajo}
 ```
@@ -459,7 +459,7 @@ Aquí lo que hicimos es decirle al paquete que queremos correr la función "main
 
 Para compilar y ejecutar el programa tenemos que ir a la carpeta principal que hicimos para el paquete y escribir en la terminal los siguientes comandos: 
 
-``` terminal
+``` console
 colcon build --packages-select {nombre del paquete}
 source install/setup.bash
 ros2 run {nombre del paquete} {nombre que definimos para ejecutar el programa}
@@ -467,7 +467,7 @@ ros2 run {nombre del paquete} {nombre que definimos para ejecutar el programa}
 
 Siguiendo el mismo ejemplo del caso anterior sería algo así:
 
-``` terminal
+``` console
 colcon build --packages-select procesamiento_Datos
 source install/setup.bash
 ros2 run procesamiento_Datos iniciar_procesamiento

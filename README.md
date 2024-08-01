@@ -609,7 +609,8 @@ void subscription_callback(const void * msgin) {
 - ESP32 (Modelo: Wroom 32e )
 - Sensor ultra-sónico Hc-04
 - Motores Dc N20 (5v)
-- Modelo 3D robot 
+- Modelo 3D robot
+- Driver de 2 motores L9110S
 - Protoboard (Ensayo)
 - Conversor corriente electrica -> 5V
   

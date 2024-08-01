@@ -27,7 +27,7 @@ def main(args=None):
 
     try:
         while True:
-            command = input("0: Detener, 1: Frente, 2: Retroceso, 3: Derecha, 4: Izquierda, 5: Secuencia, 6: break = ")
+            command = input("0: Detener, 1: Frente, 2: Retroceso, 3: Izquierda, 4: Derecha, 5: Secuencia, 6: break = ")
             if command == "5":
                 minimal_publisher.publish_message(1)
                 time.sleep(4)
@@ -52,7 +52,7 @@ def main(args=None):
             elif command == "6":
                 break
             else:
-                print("Invalid command. Please enter 0, 1, or 2.")
+                print("Invalid command. Please enter 0, 1,3, 4, 5 or 6.")
     except KeyboardInterrupt:
         pass
     finally:

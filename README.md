@@ -23,12 +23,13 @@ Profesor:
 
 
 # Estructura de los archivos
-* **launcher:** Aquí se encuentran los launchers necesarios para ejecutar la visualización en rviz.
-  * **display_sensores.py:** Este archivo despliega la visualización del robot urdf junto al sensor. 
-* **rviz:** Aquí se almacena la configuración de rviz para que al abrirse se visualice el sensor.
-* **urdf:** Aquí se encuentran los archivos que describen la estructura del robot:
-  * **robot_sensores.urdf:** Este archivo corresponde al modelo del robot junto al cuadrado que representará el sensor de ultra-sonido 
-
+* Sensores: Carpeta principal del launcher de rviz
+  * **launcher:** Aquí se encuentran los launchers necesarios para ejecutar la visualización en rviz.
+     * **display_sensores.py:** Este archivo despliega la visualización del robot urdf junto al sensor. 
+     * **rviz:** Aquí se almacena la configuración de rviz para que al abrirse se visualice el sensor.
+     * **urdf:** Aquí se encuentran los archivos que describen la estructura del robot:
+       * **robot_sensores.urdf:** Este archivo corresponde al modelo del robot junto al cuadrado que representará el sensor de ultra-sonido 
+* **subscriptor_py:** Carpeta principal del publisher Python mediante terminal para el ingreso de  comandos para el robot
 
 # Programación ESP-32: Publisher (HC-04) / Subscriber (Motores)
 
@@ -484,7 +485,7 @@ source install/setup.bash
 ros2 run procesamiento_Datos iniciar_procesamiento
 ```
 
-En nuestro caso, tenemos un programa en la carpeta "subscriptor.py" que se llama publicador.py el cual es un publisher que se encargará de enviar instrucciones a nuestro robot mediante lo que uno ingrese a la terminal
+En nuestro caso, tenemos un programa en la carpeta "subscriptor_py" que se llama publicador.py el cual es un publisher que se encargará de enviar instrucciones a nuestro robot mediante lo que uno ingrese a la terminal
 
 ``` python
 import rclpy

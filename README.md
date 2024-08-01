@@ -19,20 +19,21 @@
   * **robot_sensores.urdf:** Este archivo corresponde al modelo del robot junto al cuadrado que representará el sensor de ultra-sonido 
 
 
-# Programación del micro-controlador ESP-32 + sensor Hc-04:
+# Programación ESP-32: Publisher (HC-04) / Subscriber (Motores)
 
 ```cpp
-#include <micro_ros_arduino.h>  // Incluye la biblioteca para micro-ROS en Arduino
-// Bibliotecas necesarias para micro-ROS
+#include <micro_ros_arduino.h>  // Incluye la biblioteca de micro-ROS para Arduino
 #include <stdio.h>             // Biblioteca estándar para funciones de entrada/salida
-#include <rcl/rcl.h>           // Biblioteca para la comunicación de ROS 2
-#include <rcl/error_handling.h> // Biblioteca para el manejo de errores de ROS 2
+#include <rcl/rcl.h>           // Biblioteca de comunicación de ROS 2
+#include <rcl/error_handling.h> // Biblioteca de manejo de errores de ROS 2
 #include <rclc/rclc.h>         // Biblioteca para la inicialización de ROS 2 en C
-#include <rclc/executor.h>     // Biblioteca para la ejecución de nodos en ROS 2
-#include <std_msgs/msg/float32.h> // Biblioteca para mensajes estándar de tipo float32
-#include <sensor_msgs/msg/range.h>// Biblioteca para mensajes de rango de sensor
-#include <rosidl_runtime_c/string.h> // Biblioteca para manejo de cadenas en ROS 2
-#include "std_msgs/msg/detail/header__struct.h" // Importamos la estructura para el header del mensaje
+#include <rclc/executor.h>     // Ejecutor para manejar la ejecución de nodos en ROS 2
+#include <std_msgs/msg/float32.h> // Biblioteca de mensajes estándar para tipo float32
+#include <sensor_msgs/msg/imu.h>  // Biblioteca de mensajes para IMU (unidad de medición inercial)
+#include <sensor_msgs/msg/range.h>// Biblioteca de mensajes para rango de sensores
+#include <rosidl_runtime_c/string.h> // Manejo de cadenas en ROS 2
+#include "std_msgs/msg/detail/header__struct.h"
+#include <std_msgs/msg/int32.h> // Biblioteca de mensajes estándar para tipo int32
 
 // Pines utilizados para el sensor ultrasónico
 const int pinTrig = 5; // Pin de disparo del sensor ultrasónico
@@ -40,20 +41,30 @@ const int pinEcho = 18; // Pin de eco del sensor ultrasónico
 
 // Constantes para la conversión de distancia
 #define VELOCIDAD_SONIDO 0.034 // Velocidad del sonido en cm/µs
-#define distancia_Metros 0.01 // conversión cm a metros 
+#define DISTANCIA_METROS 0.01 // Conversión de cm a metros 
 
 // Variables globales para la comunicación con ROS 2
-rcl_publisher_t publicador_distancia; // Publicador para el mensaje de distancia
+rcl_publisher_t publicador_distancia; // Publicador para mensajes de distancia
 sensor_msgs__msg__Range msg_distancia; // Mensaje para el rango del sensor
 rosidl_runtime_c__String frame_id;
 std_msgs__msg__Header header; 
-rclc_executor_t ejecutor; // Ejecutador para manejar los temporizadores y callbacks
-rclc_support_t soporte; // Soporte para inicialización de ROS 2
+rclc_executor_t ejecutor; // Ejecutor para manejar temporizadores y callbacks
+rclc_support_t soporte; // Soporte para la inicialización de ROS 2
 rcl_allocator_t asignador; // Asignador de memoria para ROS 2
 rcl_node_t nodo; // Nodo de ROS 2
-rcl_timer_t temporizador; // Temporizador para ejecutar callbacks periódicos
+rcl_timer_t temporizador; // Temporizador para callbacks periódicos
+rcl_subscription_t subscriber; // Suscriptor para recibir mensajes
+std_msgs__msg__Int32 msg; // Mensaje para suscripción
 
-#define LED_PIN 13 // Pin del LED para indicar errores
+// Variables para el control de motores en el ESP32
+const int a1a = 13;
+const int a1b = 12; 
+const int b1a = 14;
+const int b1b = 27;
+
+int velocidad = 85; // Valor de velocidad de 0 a 255
+
+#define LED_PIN 13 // Pin para el LED que indica errores
 
 #define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){error_loop();}} // Macro para verificar el resultado de las funciones de ROS 2 y manejar errores
 #define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
@@ -72,7 +83,6 @@ float leerDistanciaUltrasonica() {
   float distanciaCm; // Distancia en centímetros
   float distanciaMetros;
 
-
   // Genera el pulso de disparo
   digitalWrite(pinTrig, LOW);
   delayMicroseconds(2);
@@ -83,7 +93,7 @@ float leerDistanciaUltrasonica() {
   // Lee la duración del pulso de eco
   duracion = pulseIn(pinEcho, HIGH);
   distanciaCm = duracion * VELOCIDAD_SONIDO / 2; // Calcula la distancia en centímetros
-  distanciaMetros = distanciaCm * distancia_Metros;
+  distanciaMetros = distanciaCm * DISTANCIA_METROS;
   return distanciaMetros; // Retorna la distancia en metros
 }
 
@@ -93,6 +103,41 @@ void temporizador_callback(rcl_timer_t * timer, int64_t last_call_time) {
     float distancia = leerDistanciaUltrasonica(); // Lee la distancia del sensor ultrasónico
     msg_distancia.range = distancia; // Asigna la distancia al mensaje
     RCSOFTCHECK(rcl_publish(&publicador_distancia, &msg_distancia, NULL)); // Publica el mensaje de distancia
+  }
+}
+
+// Función de callback para la suscripción
+void subscription_callback(const void * msgin) {  
+  const std_msgs__msg__Int32 * msg = (const std_msgs__msg__Int32 *)msgin;
+  if (msg->data == 0){ 
+    analogWrite(a1a, 0);
+    analogWrite(a1b, 0); // 0 detener
+    analogWrite(b1a, 0);
+    analogWrite(b1b, 0);
+  } 
+  else if (msg -> data == 1) {
+    analogWrite(a1a, velocidad);
+    analogWrite(a1b, 0); // 1 para avanzar
+    analogWrite(b1a, velocidad);
+    analogWrite(b1b, 0);
+  }
+  else if (msg -> data == 2) {
+    analogWrite(a1a, 0);
+    analogWrite(a1b, velocidad); // 2 para retroceder
+    analogWrite(b1a, 0);
+    analogWrite(b1b, velocidad);
+  }
+  else if (msg -> data == 3 ){
+    analogWrite(a1a, velocidad);
+    analogWrite(a1b, 0); // 3 izquierda
+    analogWrite(b1a, 0);
+    analogWrite(b1b, 0);
+  }
+  else if (msg -> data == 4 ){
+    analogWrite(a1a, 0);
+    analogWrite(a1b, 0); // 4 derecha
+    analogWrite(b1a, velocidad);
+    analogWrite(b1b, 0);
   }
 }
 
@@ -116,6 +161,13 @@ void setup() {
     ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Range),
     "distancia_ultrasonica"));
 
+  // Inicializa el suscriptor
+  RCCHECK(rclc_subscription_init_default(
+    &subscriber,
+    &nodo,
+    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),
+    "diferencial_control_remoto"));
+
   // Inicializa el temporizador
   const unsigned int temporizador_timeout = 1000; // Tiempo de espera en milisegundos
   RCCHECK(rclc_timer_init_default(
@@ -124,9 +176,10 @@ void setup() {
     RCL_MS_TO_NS(temporizador_timeout),
     temporizador_callback));
 
-  // Inicializa el ejecutor y agrega el temporizador
-  RCCHECK(rclc_executor_init(&ejecutor, &soporte.context, 1, &asignador));
+  // Inicializa el ejecutor y agrega el temporizador y suscriptor
+  RCCHECK(rclc_executor_init(&ejecutor, &soporte.context, 2, &asignador));
   RCCHECK(rclc_executor_add_timer(&ejecutor, &temporizador));
+  RCCHECK(rclc_executor_add_subscription(&ejecutor, &subscriber, &msg, &subscription_callback, ON_NEW_DATA));
 
   // Configura el mensaje de distancia
   frame_id.data = "sensor_link";
@@ -143,16 +196,18 @@ void loop() {
   RCSOFTCHECK(rclc_executor_spin_some(&ejecutor, RCL_MS_TO_NS(100))); // Ejecuta el ejecutor
   delay(100); // Espera 100 ms
 }
+
 ```
 
 De aqui lo más importante a rescatar es:
 ``` python
 Frame_id = " sensor_link "
-Tópico   = " distancia_ultrasonica "
+Tópico_Publisher   = " distancia_ultrasonica "
+Tópico_Subscriber = " diferencial_control_remoto "
 ```
 
-# Ejecución del programa 
-## 1.- Comprobar puerto 
+# Ejecución del programa (ETAPA 1)
+## 1.a- Comprobar puerto 
 
 Si estamos utilizando maquinas virtuales para trabajar, por ejemplo VirtualBox (Mi caso) , tenemos que habilitar la lectura de puertos y para esto nos vamos a la seccion de configuración de la máquina como en la imagen de abajo y a la derecha de la ventana emerguente apareceran unos cables con simbolos encima, hay que presionar el que tenga el simbolo + de color verde y agregar el driver correspondiente al manejo de los puertos, en mi caso agregué el que aparece ahí, con esto listo debería reconocer el Ubuntu o sistema operativo que estes utilizando los puertos COM:
 
@@ -170,7 +225,7 @@ Una vez ejecutados los comandos deberiamos ver algo como la imagen de abajo, si 
 
 Si no te aparece el puerto ttyUSB0 prueba desconectando el cable del ESP-32 y volviendolo a conectar las veces que sean necesarios revisando constantemente con ls para verificar que aparezca el puerto, si estas haciendo esto por primera vez puede que sea necesario que tengas que reiniciar el computador para que empiece a funcionar todo como debería. 
 
-## 2.- Crear e iniciar agente 
+## 1.b.- Crear e iniciar agente 
 Para poder inicializar el programa cargado en nuestro ESP-32 tenemos que crear un agente en el sistema lo que hará que los valores sensorizados y compartidos por el micro-controlador lleguen al ubuntu, para lograr esto se tienen que ejecutar los siguientes comandos: 
 ``` console
 # Instalación de dependencias
@@ -262,7 +317,7 @@ Ingresando este comando la terminal debería entregar esto:
 
 Si se visualiza el mensaje igual que la imagen anterior significa que se estan recepcionando de manera correcta la información desde el ESP-32
 
-## 3.- Iniciar entorno de visualización 
+## 1.c.- Iniciar entorno de visualización 
 
 Para poder visualizar los datos de mi sensor, necesitamos tener un archivo URDF a quien asociarle el sensor, en mi caso yo hice un robot diferencial de 2 ruedas, junto con una caja al frente de este: 
 
@@ -318,13 +373,13 @@ Resultando en lo siguiente:
 # Ejecución con launcher 
 Hechos todos los pasos anteriores, lo que hice yo fue crear un "package" en donde configuré un launcher para ejecutar la visualización con las configuraciones ya hechas de rviz y el robot, en vez de utilizar el comando  
 
-```
+``` terminal
 ros2 launch urdf_tutorial display.launch.py model:=$HOME/{dirección hacia nuestro robot urdf}
 ```
 
 Solamente nos vamos a la carpeta de sensores que sería la principal, realizamos:
 
-```
+``` terminal
 colcon build
 # Luego
 source install/setup.bash
@@ -338,3 +393,202 @@ Debería visualizarse el mismo ambiente anterior:
 
 ![](https://github.com/Matias3am/sensor_visualization-ros2_rviz/blob/main/imagenes/ambiente.jpeg)
 
+# Control del robot (Python) (ETAPA 2)
+# 2.a- Conexión Publisher -> Subscriber -> Robot
+
+Para poder controlar el robot mediante la terminal se creó un launchfile de Python el cual será el encargado de leer valores enteros en la terminal y enviar estos valores al tópico subscriber del ESP-32, para esto es necesario crear una carpeta aparte en donde tendremos nuestro programa de Ros Python. 
+
+``` terminal
+# Comando para crear un paquete Python
+ros2 pkg create --build-type ament_python {Nombre del ambiente de trabajo}
+```
+
+El paquete creado debería generarte un entorno parecido a lo siguiente: 
+
+![](https://github.com/Matias3am/sensor_visualization-ROS-ESP32/blob/main/imagenes/paquete_ejemplo.png)
+
+En donde la primera carpeta que se llamará igual que el nombre del paquete que asignamos contendrá los programas principales que deseemos agregar, las demás carpetas no tienen implicancia en el programa, excepto por el archivo "setup.py" el cual se verá de la siguiente forma: 
+
+``` python
+from setuptools import find_packages, setup
+
+package_name = '{Nombre del paquete}'
+
+setup(
+    name=package_name,
+    version='0.0.0',
+    packages=find_packages(exclude=['test']),
+    data_files=[
+        ('share/ament_index/resource_index/packages',
+            ['resource/' + package_name]),
+        ('share/' + package_name, ['package.xml']),
+    ],
+    install_requires=['setuptools'],
+    zip_safe=True,
+    maintainer='{Nombre de usuario root de tú maquina virtual}',
+    maintainer_email='{Email del usuario root}',
+    description='TODO: Package description',
+    license='Apache-2.0',
+    tests_require=['pytest'],
+    entry_points={
+        'console_scripts': [
+        ],
+    },
+)
+```
+
+De aqui lo que configuraremos será el entry_points, ya que esto definirá que programa queremos ejecutar en este entorno de trabajo
+
+``` python
+    entry_points={
+        'console_scripts': [
+            '{Cómo quieres que se llame el comando} = {nombre del paquete}.{programa que quieres ejecutar}:{función del programa que quieres ejecutar}'
+        ],
+```
+
+Imaginemos que creamos un paquete llamado "procesamiento_Datos" en el cual tenemos un archivo "programa.py" con cierta lógica para publicar / procesar o subscribirse a datos en Ros, para poder ejecutar el programa tendrías que configurar el entry_point de la siguiente manera: 
+
+``` python
+    entry_points={
+        'console_scripts': [
+            ' iniciar_procesamiento = procesamiento_Datos.programa:main'
+        ],
+```
+
+Aquí lo que hicimos es decirle al paquete que queremos correr la función "main" de "programa.py" que está en la carpeta "procesamiento_Datos", pero que al ejecutar el programa en terminal tenga que escribir "iniciar_procesamiento" para que empiece a hacer lo que queramos. 
+
+Para compilar y ejecutar el programa tenemos que ir a la carpeta principal que hicimos para el paquete y escribir en la terminal los siguientes comandos: 
+
+``` terminal
+colcon build --packages-select {nombre del paquete}
+source install/setup.bash
+ros2 run {nombre del paquete} {nombre que definimos para ejecutar el programa}
+```
+
+Siguiendo el mismo ejemplo del caso anterior sería algo así:
+
+``` terminal
+colcon build --packages-select procesamiento_Datos
+source install/setup.bash
+ros2 run procesamiento_Datos iniciar_procesamiento
+```
+
+En nuestro caso, tenemos un programa en la carpeta "subscriptor.py" que se llama publicador.py el cual es un publisher que se encargará de enviar instrucciones a nuestro robot mediante lo que uno ingrese a la terminal
+
+``` python
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import Int32
+import threading
+import time 
+class MinimalPublisher(Node):
+
+    def __init__(self):
+        super().__init__('minimal_publisher')
+        self.publisher_ = self.create_publisher(Int32, 'diferencial_control_remoto', 10)
+
+    def publish_message(self, data):
+        msg = Int32()
+        msg.data = data
+        self.publisher_.publish(msg)
+        self.get_logger().info('Publishing: "%s"' % msg.data)
+
+def main(args=None):
+    rclpy.init(args=args)
+    minimal_publisher = MinimalPublisher()
+
+    def spin_thread():
+        rclpy.spin(minimal_publisher)
+
+    thread = threading.Thread(target=spin_thread)
+    thread.start()
+
+    try:
+        while True:
+            command = input("0: Detener, 1: Frente, 2: Retroceso, 3: Izquierda, 4: Derecha, 5: Secuencia, 6: break = ")
+            if command == "5":
+                minimal_publisher.publish_message(1)
+                time.sleep(4)
+                minimal_publisher.publish_message(2)
+                time.sleep(4)
+                minimal_publisher.publish_message(3)
+                time.sleep(4)
+                minimal_publisher.publish_message(4)
+                time.sleep(4)
+                minimal_publisher.publish_message(0)
+                time.sleep(4)
+            elif command == "0":
+                minimal_publisher.publish_message(0)
+            elif command == "1":
+                minimal_publisher.publish_message(1)
+            elif command == "2":
+                minimal_publisher.publish_message(2)
+            elif command == "3":
+                minimal_publisher.publish_message(3)
+            elif command == "4":
+                minimal_publisher.publish_message(4)
+            elif command == "6":
+                break
+            else:
+                print("Invalid command. Please enter 0, 1, 2, 3, 4 ,5 or 6")
+    except KeyboardInterrupt:
+        pass
+    finally:
+        minimal_publisher.destroy_node()
+        rclpy.shutdown()
+        thread.join()
+
+if __name__ == '_main_':
+    main()
+```
+
+Recordemos que nuestro ESP-32 al ejecutar el agente creará 2 topicos: 
+
+```
+Tópico_Publisher   = " distancia_ultrasonica "
+Tópico_Subscriber = " diferencial_control_remoto "
+```
+
+En donde el primero es lo que envia el ESP-32 con respecto a las mediciones del sensor ultra sónico y el tópico "diferencial_control_remoto" es el subscriber al cual nosotros le estamos enviando comandos mediante el script de python que creamos. 
+
+![](https://github.com/Matias3am/sensor_visualization-ROS-ESP32/blob/main/imagenes/control_python.jpeg)
+
+Estos valores que se están enviando por la terminal son los que recibe el ESP-32 para darle control a los motores como se visualiza en el código: 
+
+``` cpp
+// Función de callback para la suscripción
+void subscription_callback(const void * msgin) {  
+  const std_msgs__msg__Int32 * msg = (const std_msgs__msg__Int32 *)msgin;
+  if (msg->data == 0){ 
+    analogWrite(a1a, 0);
+    analogWrite(a1b, 0); // 0 detener
+    analogWrite(b1a, 0);
+    analogWrite(b1b, 0);
+  } 
+  else if (msg -> data == 1) {
+    analogWrite(a1a, velocidad);
+    analogWrite(a1b, 0); // 1 para avanzar
+    analogWrite(b1a, velocidad);
+    analogWrite(b1b, 0);
+  }
+  else if (msg -> data == 2) {
+    analogWrite(a1a, 0);
+    analogWrite(a1b, velocidad); // 2 para retroceder
+    analogWrite(b1a, 0);
+    analogWrite(b1b, velocidad);
+  }
+  else if (msg -> data == 3 ){
+    analogWrite(a1a, velocidad);
+    analogWrite(a1b, 0); // 3 izquierda
+    analogWrite(b1a, 0);
+    analogWrite(b1b, 0);
+  }
+  else if (msg -> data == 4 ){
+    analogWrite(a1a, 0);
+    analogWrite(a1b, 0); // 4 derecha
+    analogWrite(b1a, velocidad);
+    analogWrite(b1b, 0);
+  }
+}
+
+```

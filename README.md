@@ -1,5 +1,9 @@
 # PROGRAMACIÓN Y ENSAMBLE DE ROBOT DIFERENCIAL + VISUALIZACIÓN DE SENSOR:  ESP32 A RVIZ/ROS2 
 
+```
+
+```
+
 ![](https://github.com/Matias3am/sensor_visualization-ROS-ESP32/blob/main/imagenes/rebotete_bot.jpg)
 
 ## _**REQUISITOS MÍNIMOS GENERALES**_ 
